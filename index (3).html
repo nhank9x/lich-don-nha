@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chia lịch dọn nhà - Nhanh</title>
+    <style>
+        :root { --primary: #2563eb; --bg: #f1f5f9; --text: #1e293b; --success: #10b981; --danger: #ef4444; }
+        body { font-family: -apple-system, sans-serif; background: var(--bg); color: var(--text); padding: 15px; display: flex; justify-content: center; position: relative;}
+        .container { background: white; width: 100%; max-width: 420px; padding: 20px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); margin-top: 45px; }
+        h2 { text-align: center; color: var(--primary); margin-bottom: 20px; font-size: 1.6em; }
+        h3 { font-size: 1em; margin-bottom: 10px; color: #64748b; border-bottom: 1px solid #f1f5f9; padding-bottom: 5px; }
+        .input-group { display: flex; gap: 8px; margin-bottom: 15px; }
+        input { flex: 1; padding: 12px; border: 2px solid #e2e8f0; border-radius: 10px; outline: none; font-size: 16px; transition: 0.3s; }
+        input:focus { border-color: var(--primary); }
+        button { padding: 10px 15px; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; transition: 0.2s; }
+        .btn-add { background: var(--success); color: white; }
+        .btn-draw { background: var(--primary); color: white; width: 100%; font-size: 1.1em; padding: 16px; margin: 15px 0; border-radius: 12px; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2); }
+        .btn-draw:active { transform: scale(0.98); }
+        .result { background: #fffbeb; border: 2px solid #fde68a; padding: 20px; border-radius: 12px; text-align: center; margin-bottom: 20px; animation: slideDown 0.4s ease; }
+        @keyframes slideDown { from {opacity: 0; transform: translateY(-10px);} to {opacity: 1; transform: translateY(0);} }
+        .job-card { background: white; padding: 10px; border-radius: 8px; margin-top: 10px; border: 1px solid #fde68a; text-align: left; }
+        .job-title { font-weight: bold; color: var(--primary); border-bottom: 1px solid #eee; margin-bottom: 5px; font-size: 0.85em; }
+        ul { list-style: none; padding: 0; margin-bottom: 20px; }
+        li { background: white; margin-bottom: 6px; padding: 10px 12px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #e2e8f0; font-size: 0.95em; }
+        .count-badge { background: #e0f2fe; color: #0369a1; padding: 3px 8px; border-radius: 8px; font-size: 0.8em; font-weight: bold; }
+        .tag-job { background: #f1f5f9; color: #475569; padding: 3px 8px; border-radius: 6px; font-size: 0.85em; border: 1px solid #e2e8f0; }
+        .history-item { font-size: 0.8em; padding: 8px; border-bottom: 1px solid #f1f5f9; color: #475569; }
+        /* Style cho phần bản quyền của Nhanh */
+        .brand-logo { position: absolute; top: 10px; left: 10px; display: flex; align-items: center; gap: 6px; padding: 4px 8px; background: rgba(37, 99, 235, 0.05); border-radius: 8px; }
+        .brand-icon { width: 22px; height: 22px; background: var(--primary); color: white; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px; }
+        .brand-name { font-size: 11px; font-weight: 700; color: var(--primary); text-transform: uppercase; letter-spacing: 0.5px; }
+    </style>
+</head>
+<body>
+
+<div class="brand-logo">
+    <div class="brand-icon">N</div>
+    <div class="brand-name">Bản quyền web của Nhanh</div>
+</div>
+
+<div class="container">
+    <h2>🧹 Chia lịch dọn nhà</h2>
+    
+    <h3>👥 Thành viên</h3>
+    <div class="input-group">
+        <input type="text" id="nameInput" placeholder="Tên người...">
+        <button class="btn-add" onclick="addMember()">Thêm</button>
+    </div>
+    <ul id="memberList"></ul>
+
+    <h3>🛠️ Công việc (Chia cho 2 nhóm)</h3>
+    <div class="input-group">
+        <input type="text" id="jobInput" placeholder="Tên việc...">
+        <button class="btn-add" style="background: #6366f1;" onclick="addJob()">Thêm</button>
+    </div>
+    <ul id="jobList"></ul>
+
+    <hr style="border: 0; border-top: 1px solid #f1f5f9; margin: 20px 0;">
+
+    <div style="margin-bottom: 15px;">
+        <label style="font-size: 0.85em; font-weight: 600; color: #64748b; margin-bottom: 5px; display: block;">📅 Ngày trực:</label>
+        <input type="date" id="drawDate" style="width: 100%; box-sizing: border-box;">
+    </div>
+    
+    <button class="btn-draw" onclick="draw()">🎲 BỐC THĂM & CHIA VIỆC</button>
+
+    <div id="resultBox" class="result" style="display: none;">
+        <div id="resDate" style="font-size: 0.85em; color: #b45309; font-weight: bold;"></div>
+        
+        <div class="job-card">
+            <div class="job-title">📍 Nhóm 1</div>
+            <div id="p1" style="font-size: 1.15em; font-weight: 800; color: #1e293b;"></div>
+            <div id="jobs1" style="font-size: 0.85em; color: #64748b; margin-top: 5px;"></div>
+        </div>
+
+        <div class="job-card">
+            <div class="job-title">📍 Nhóm 2</div>
+            <div id="p2" style="font-size: 1.15em; font-weight: 800; color: #1e293b;"></div>
+            <div id="jobs2" style="font-size: 0.85em; color: #64748b; margin-top: 5px;"></div>
+        </div>
+    </div>
+
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 25px;">
+        <h3 style="margin: 0; border:none;">Nhật ký</h3>
+        <button onclick="resetData()" style="background:none; color: var(--danger); font-size: 0.75em;">Xóa hết dữ liệu</button>
+    </div>
+    <div id="historyList" style="margin-top: 10px;"></div>
+</div>
+
+<script>
+    // Sử dụng key lưu trữ riêng để tránh xung đột với các bản cũ
+    let members = JSON.parse(localStorage.getItem('h_final_members')) || [];
+    let jobs = JSON.parse(localStorage.getItem('h_final_jobs')) || ["Quét nhà", "Lau sàn", "Đổ rác", "Toilet"];
+    let history = JSON.parse(localStorage.getItem('h_final_history')) || [];
+
+    const nextSun = new Date();
+    nextSun.setDate(nextSun.getDate() + (7 - nextSun.getDay()) % 7);
+    document.getElementById('drawDate').valueAsDate = nextSun;
+
+    function save() {
+        localStorage.setItem('h_final_members', JSON.stringify(members));
+        localStorage.setItem('h_final_jobs', JSON.stringify(jobs));
+        localStorage.setItem('h_final_history', JSON.stringify(history));
+        render();
+    }
+
+    function addMember() {
+        const input = document.getElementById('nameInput');
+        if (input.value.trim()) {
+            members.push({ name: input.value.trim(), count: 0 });
+            input.value = '';
+            save();
+        }
+    }
+
+    function removeMember(idx) {
+        members.splice(idx, 1);
+        save();
+    }
+
+    function addJob() {
+        const input = document.getElementById('jobInput');
+        if (input.value.trim()) {
+            jobs.push(input.value.trim());
+            input.value = '';
+            save();
+        }
+    }
+
+    function removeJob(idx) {
+        jobs.splice(idx, 1);
+        save();
+    }
+
+    function draw() {
+        if (members.length < 2) return alert("Cần tối thiểu 2 người!");
+        if (jobs.length < 1) return alert("Hãy thêm ít nhất 1 công việc!");
+        const dateVal = document.getElementById('drawDate').value;
+        if (!dateVal) return alert("Hãy chọn ngày!");
+
+        let sorted = [...members].sort((a,b) => a.count - b.count);
+        let minCount = sorted[0].count;
+        let candidates = members.filter(m => m.count === minCount);
+        
+        let selected = [];
+        if (candidates.length >= 2) {
+            for(let i=0; i<2; i++) {
+                let idx = Math.floor(Math.random() * candidates.length);
+                selected.push(candidates.splice(idx, 1)[0]);
+            }
+        } else {
+            selected.push(candidates[0]);
+            let others = members.filter(m => m.name !== selected[0].name).sort((a, b) => a.count - b.count);
+            let secondMin = others[0].count;
+            let secondCandidates = others.filter(m => m.count === secondMin);
+            selected.push(secondCandidates[Math.floor(Math.random() * secondCandidates.length)]);
+        }
+
+        selected.forEach(s => {
+            const m = members.find(mem => mem.name === s.name);
+            if (m) m.count++;
+        });
+
+        let shuffledJobs = [...jobs].sort(() => Math.random() - 0.5);
+        let mid = Math.ceil(shuffledJobs.length / 2);
+        let jobsGroup1 = shuffledJobs.slice(0, mid);
+        let jobsGroup2 = shuffledJobs.slice(mid);
+
+        const fDate = new Date(dateVal).toLocaleDateString('vi-VN', { weekday: 'short', day: '2-digit', month: '2-digit' });
+        
+        document.getElementById('resDate').innerText = "LỊCH TRỰC: " + fDate;
+        document.getElementById('p1').innerText = "👤 " + selected[0].name;
+        document.getElementById('jobs1').innerText = "📝 Việc: " + jobsGroup1.join(", ");
+        document.getElementById('p2').innerText = "👤 " + selected[1].name;
+        document.getElementById('jobs2').innerText = "📝 Việc: " + jobsGroup2.join(", ");
+        document.getElementById('resultBox').style.display = 'block';
+
+        history.unshift({ date: fDate, names: `${selected[0].name} & ${selected[1].name}` });
+        save();
+    }
+
+    function resetData() {
+        if(confirm("Xóa sạch toàn bộ dữ liệu?")) {
+            localStorage.clear();
+            members = []; jobs = ["Quét nhà", "Lau sàn", "Đổ rác", "Toilet"]; history = [];
+            render();
+            document.getElementById('resultBox').style.display = 'none';
+        }
+    }
+
+    function render() {
+        const mList = document.getElementById('memberList');
+        mList.innerHTML = members.map((m, i) => `
+            <li>
+                <span><b>${m.name}</b></span>
+                <div>
+                    <span class="count-badge">${m.count} lần</span>
+                    <button onclick="removeMember(${i})" style="background:none; color:#cbd5e1; padding:0 0 0 10px;">✕</button>
+                </div>
+            </li>
+        `).join('');
+
+        const jList = document.getElementById('jobList');
+        jList.innerHTML = jobs.map((j, i) => `
+            <li>
+                <span class="tag-job">${j}</span>
+                <button onclick="removeJob(${i})" style="background:none; color:#cbd5e1; padding:0;">✕</button>
+            </li>
+        `).join('');
+
+        const hList = document.getElementById('historyList');
+        hList.innerHTML = history.map(h => `<div class="history-item">📅 ${h.date}: <b>${h.names}</b></div>`).join('');
+    }
+
+    render();
+</script>
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="./style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pen</title>
+  </head>
+  <body>
+
+    <script src="./script.js"></script>
+  </body>
+</html>
